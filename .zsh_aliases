@@ -1,0 +1,227 @@
+#######################################
+####    Frequently used aliases    ####
+#######################################
+
+alias clean='sed "s,\x1B\[[0-9;]*[a-zA-Z],,g"'
+alias clr='clear'
+alias cursor-hide="printf '\e[?25l'"
+alias cursor-show="printf '\e[?25h'"
+alias drive-speed='hdparam -Tt'
+alias sudo='sudo '
+alias termbin='nc termbin.com 9999'
+alias xclip-i='xclip -i -selection clipboard'
+alias xclip-o='xclip -o -selection clipboard'
+alias lyrics='tput reset; $HOME/github/scripts/misc/lyrics.sh'
+#-- Global --#
+alias -g L="| less"
+alias -g H="| head"
+alias -g T="| tail"
+alias -g G="| grep --color=auto"
+alias -g N=">/dev/null"
+#-- Suffix --#
+alias -s html='$BROWSER'
+alias -s com='$BROWSER'
+alias -s org='$BROWSER'
+alias -s .git='git clone'
+
+################################
+####    Simple functions    ####
+################################
+
+# Use curl and jq to search for packages in the Arch Linux AUR
+aursearch () {
+    curl -sSL "https://aur.archlinux.org/rpc/?v=5&type=search&arg=$@" | jq -r '.results[]'
+}
+
+# Convert to and from binary
+binary-convert () {
+    case $1 in
+        -b|b)
+            echo "$2" | perl -lpe '$_=join " ", unpack"(B8)*"'
+            ;;
+        -a|a)
+            echo "$2" | perl -lape '$_=pack"(B8)*",@F'
+            ;;
+        0*|1*)
+            echo "$@" | perl -lape '$_=pack"(B8)*",@F'
+            ;;
+        *)
+            echo "$@" | perl -lpe '$_=join " ", unpack"(B8)*"'
+            ;;
+    esac
+}
+
+# Use awk as a calculator
+calc () {
+    awk "BEGIN {print $@}"
+}
+
+# Use cht.sh to get simple help outputs for all sorts of Linux things
+help () {
+    curl -s "https://cht.sh/$@"
+}
+
+# Use owlbot.info to get definitions; requires jq
+define () {
+    curl -sL "https://owlbot.info/api/v2/dictionary/"$1"?format=json" | jq -r '.'
+}
+
+# check Discord client versions
+discord-versions () {
+    echo "Canary: $(curl -sSL -I -X GET "https://discordapp.com/api/download/canary?platform=linux&format=tar.gz" | grep -im1 '^location:' | rev | cut -f1 -d'/' | rev)"
+    echo "PTB: $(curl -sSL -I -X GET "https://discordapp.com/api/download/ptb?platform=linux&format=tar.gz" | grep -im1 '^location:' | rev | cut -f1 -d'/' | rev)"
+    echo "Stable: $(curl -sSL -I -X GET "https://discordapp.com/api/download?platform=linux&format=tar.gz" | grep -im1 '^location:' | rev | cut -f1 -d'/' | rev)"    
+}
+
+# List size of directories
+dirsize () { du -h --max-depth=0 "$@" | sort -h -r }
+dirsize-a () { du -h "$@" | sort -h -r }
+
+#Check to see if site is down for you or everyone
+downforme () {
+    wget -qO - "http://downforeveryoneorjustme.com/$1" | grep -qo "It's just you" && echo -e "$(tput setaf 1)It's just you.\n$(tput setaf 2)$1 is up.$(tput sgr0)" || echo -e "$(tput setaf 3)It's not just you! \n$(tput setaf 1)$1 looks down from here.$(tput sgr0)"
+}
+
+# List size of file
+filesize () { du -h -a --max-depth=1 "$@" | sort -h -r }
+filesize-a () { du -h -a "$@" | sort -h -r }
+
+# View info about a github repo; requires jq
+gitinfo () {
+    curl -sSL "https://api.github.com/repos/$1" | jq -r ".$2"
+}
+
+# View latest github release; requires jq
+gitrelease () {
+    curl -sSL "https://api.github.com/repos/$1/$2/releases" | jq -r ".[$3].assets[]"
+}
+
+# Output Github commits and messages for chosen repo; requires jq
+list-commits () {
+    wget -qO - "https://api.github.com/repos/simoniz0r/$1/commits" | jq -r '.[] | .sha, .commit.message' | head -n $2 | paste -sd ' \n'
+}
+
+# Use bat to view man pages
+man (){
+    /usr/bin/man "$1" | bat --style=plain
+}
+
+# Output currently playing mpc song
+mpc-current () {
+    printf '\e[?25l'
+    while true; do
+        echo
+        echo
+        echo "$(tput setaf 4)$(mpc current --wait -f "\n\nArtist: %artist%\nSong: %title%")"
+    done
+}
+
+# Show resource use for specific process
+sps () {
+    ps -eLo pid,rss,%cpu,comm --sort -rss | grep -i "%CPU\|$@" | grep -v 'grep'
+}
+
+# Search for and play a youtube video
+mpvyt () { mpv ytdl://ytsearch10:"$*" }
+
+# Use rsstail to view feeds easily
+rss () {
+    case $1 in
+        o*)
+            rsstail -NrHd1plu  https://build.opensuse.org/main/latest_updates.rss
+            ;;
+        p*)
+            rsstail -NrHd1plu https://www.phoronix.com/rss.php
+            ;;
+        t*)
+            twreleaselink="$(rsstail -1ln 1 -u http://review.tumbleweed.boombatower.com/feed.xml | tail -n 1 | cut -f2 -d' ')"
+            w3m "$twreleaselink"
+            ;;
+    esac
+}
+
+# watch travis logs
+traviswatch () {
+    watch -tcn 2 "curl -sL "https://api.travis-ci.org/v3/job/$1/log.txt" | tail -n 50"
+}
+
+# Use wttr.in to output weather
+wttr (){
+    LOCATION="$1"
+    FLOCATION="$2"
+    case $1 in
+        0*)
+            if [ -z "$FLOCATION" ]; then
+                FLOCATION="$location"
+            fi
+            tput reset
+            curl "wttr.in/$FLOCATION?0"
+            LOCATION=""
+            FLOCATION=""
+            ;;
+        1*)
+            if [ -z "$FLOCATION" ]; then
+                FLOCATION="$location"
+            fi
+            tput reset
+            curl "wttr.in/$FLOCATION?1"
+            LOCATION=""
+            FLOCATION=""
+            ;;
+        2*)
+            if [ -z "$FLOCATION" ]; then
+                FLOCATION="$location"
+            fi
+            tput reset
+            curl "wttr.in/$FLOCATION?2"
+            LOCATION=""
+            FLOCATION=""
+            ;;
+        *)
+            if [ -z "$LOCATION" ]; then
+                LOCATION="$location"
+            fi
+            tput reset
+            curl "wttr.in/$LOCATION"
+            LOCATION=""
+    esac
+}
+
+# Decompress any archive type
+x () {
+    if [ -f "$1" ] ; then
+        case "$1" in
+            *.tar.*|*.tar)
+                tar -xf "$1"
+                ;;
+            *.bz2)
+                bunzip2 "$1"
+                ;;
+            *.rar)
+                unrar x "$1"
+                ;;
+            *.gz)
+                gunzip "$1"
+                ;;
+            *.jar|*.zip)
+                unzip "$1"
+                ;;
+            *.Z)
+                uncompress "$1"
+                ;;
+            *.deb)
+                ar x "$1"
+                ;;
+            *)
+                echo "'$1' cannot be extracted"
+                ;;
+        esac
+    else
+        echo "'$1' is not a file"
+    fi
+}
+
+# Search for youtube videos
+yt () {
+    curl -sL "https://www.w3.org/services/html2txt?url=https%3A%2F%2Fwww.youtube.com%2Fresults%3Fsearch_query%3D"$(echo "$@" | sed "s/ /%2520/g")"&noinlinerefs=on&nonums=on&endrefs=on" | grep " http.*watch?v=" | cut -f4 -d" " | grep .
+}
