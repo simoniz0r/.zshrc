@@ -11,7 +11,6 @@ alias sudo='sudo '
 alias termbin='nc termbin.com 9999'
 alias xclip-i='xclip -i -selection clipboard'
 alias xclip-o='xclip -o -selection clipboard'
-alias lyrics='tput reset; $HOME/github/scripts/misc/lyrics.sh'
 #-- Global --#
 alias -g L="| less"
 alias -g H="| head"

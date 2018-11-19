@@ -26,4 +26,4 @@ Example setup:
 
 `~/.zsh_aliases` file:
 
-![screenshot2](https://ibin.co/4N7Gxh3fPJMI.png)
+![screenshot2](https://ibin.co/4N7rmwaphCIF.png)
