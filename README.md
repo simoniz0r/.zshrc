@@ -22,7 +22,7 @@ PS1='%{$(BACKGROUND_COLOR)%}%$(MAIN_COLOR)F %n %S$(DIR_TRUNCATED)%s%k%f '
 
 Example setup:
 
-![screenshot1](https://ibin.co/4N7CWd5H8BkO.png)
+![screenshot1](https://ibin.co/4N7LeMuMnKNZ.png)
 
 `~/.zsh_aliases` file:
 
