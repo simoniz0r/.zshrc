@@ -84,7 +84,7 @@ EXIT_STATUS () {
             echo ""
             ;;
         *)
-            echo "%$(MAIN_COLOR)F%S%{$(BACKGROUND_COLOR)%}✘ "$EXIT "%s%f%k"
+            echo "%$(MAIN_COLOR)F%S%{$(BACKGROUND_COLOR)%} ✘ "$EXIT "%s%f%k"
             ;;
     esac
 }
