@@ -39,18 +39,18 @@ BACKGROUND_COLOR () {
 }
 ### FUNCTION TO TRUNCATE LONG DIRECTORIES IN THE PROMPT ###
 DIR_TRUNCATED () {
-    case "$(pwd)" in
+    case "$PWD" in
         $HOME*)
             DIR_PREPEND="~/"
             TRUNCATE_NUM=4
             ;;
         *)
-            DIR_PREPEND=""
+            DIR_PREPEND="/${${PWD#/*}%%/*}/"
             TRUNCATE_NUM=3
             ;;
     esac
-    if [ $(echo "$(pwd)" | cut -f${TRUNCATE_NUM}- -d'/' | wc -m) -gt 20 ]; then
-        DIR_ENDING="$(echo "$(pwd)" | rev | cut -f1-2 -d'/' | rev)"
+    if [ $(echo "$PWD" | cut -f${TRUNCATE_NUM}- -d'/' | wc -m) -gt 20 ]; then
+        DIR_ENDING="$(echo "$PWD" | rev | cut -f1-2 -d'/' | rev)"
         echo " $DIR_PREPEND.../$DIR_ENDING "
     else
         echo " %~ "
@@ -114,6 +114,12 @@ COLOR_ROOT="009"
 # background color for the prompt
 COLOR_BG="000"
 # PROMPT
+# set the contents of the prompt
+# '%$(MAIN_COLOR)F' is the color based on the $PWD as set in ~/.zsh_prompt.conf
+# '%{$(BACKGROUND_COLOR)%}' is the background color as set in ~/.zsh_prompt.conf
+# '%25<$(echo "/${${PWD#/*}%%/*}/" | sed 's%\/home\/%\~\/%')...<%~' truncates the current directory if more than 25 characters
+# see http://zsh.sourceforge.net/Doc/Release/Prompt-Expansion.html#Prompt-Expansion for more info
+PS1='%{$(BACKGROUND_COLOR)%}%$(MAIN_COLOR)F %n %S %25<$(echo "/${${PWD#/*}%%/*}/" | sed 's%\/home\/%\~\/%')...<%~ %s%k%f '
 # set whether exit status and git status prompt on right side is enabled
 # must be set to TRUE or FALSE
 ENABLE_RPS1="TRUE"
@@ -137,12 +143,9 @@ EOL
 source "$HOME"/.zsh_prompt.conf
 fi
 ### SET THE PROMPT ###
-# set the contents of the prompt
-# '%$(MAIN_COLOR)F' is the color based on the $PWD as set in ~/.zsh_prompt.conf
-# '%{$(BACKGROUND_COLOR)%}' is the background color as set in ~/.zsh_prompt.conf
-# '$(DIR_TRUNCATED)' is a function in this .zshrc which truncates long directories in the prompt
-# see http://zsh.sourceforge.net/Doc/Release/Prompt-Expansion.html#Prompt-Expansion for more info
-PS1='%{$(BACKGROUND_COLOR)%}%$(MAIN_COLOR)F %n %S$(DIR_TRUNCATED)%s%k%f '
+if [ -z "$PS1" ]; then
+    PS1='%{$(BACKGROUND_COLOR)%}%$(MAIN_COLOR)F %n %S %25<$(echo "/${${PWD#/*}%%/*}/" | sed 's%\/home\/%\~\/%')...<%~ %s%k%f '
+fi
 if [ "$ENABLE_RPS1" = "TRUE" ]; then
     RPS1='$(EXIT_STATUS)$(GIT_STATUS)'
 else
