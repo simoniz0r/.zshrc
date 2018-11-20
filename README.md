@@ -4,7 +4,7 @@ An easy to configure .zshrc file with 256 color support, github status, program 
 # Configuration
 On first run, `~/.zsh_prompt.conf` will be created.  This file contains all of the configuration options for the zsh prompt.  Color options may be previewed with `prompt_fg_samples` and `prompt_bg_samples`.
 
-![config](https://ibin.co/4NDNUBfnxhOG.png)
+![config](https://ibin.co/4NDapFjyb9Kv.png)
 
 # Screenshots
 
