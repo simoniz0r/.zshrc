@@ -37,26 +37,6 @@ MAIN_COLOR () {
 BACKGROUND_COLOR () {
     echo -e "\033[48;5;${COLOR_BG}m"
 }
-### FUNCTION TO TRUNCATE LONG DIRECTORIES IN THE PROMPT ###
-DIR_TRUNCATED () {
-    case "$PWD" in
-        $HOME*)
-            DIR_PREPEND="~/"
-            TRUNCATE_NUM=4
-            ;;
-        *)
-            DIR_PREPEND="/${${PWD#/*}%%/*}/"
-            TRUNCATE_NUM=3
-            ;;
-    esac
-    if [ $(echo "$PWD" | cut -f${TRUNCATE_NUM}- -d'/' | wc -m) -gt 20 ]; then
-        DIR_ENDING="$(echo "$PWD" | rev | cut -f1-2 -d'/' | rev)"
-        echo " $DIR_PREPEND.../$DIR_ENDING "
-    else
-        echo " %~ "
-    fi
-}
-###
 ### FUNCTIONS TO GET THE GIT STATUS OF THE CURRENT DIRECTORY ###
 parse_git_branch () {
     (git symbolic-ref -q HEAD || git name-rev --name-only --no-undefined --always HEAD) 2> /dev/null
