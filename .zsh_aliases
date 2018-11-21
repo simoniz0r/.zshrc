@@ -100,11 +100,6 @@ list-commits () {
     wget -qO - "https://api.github.com/repos/simoniz0r/$1/commits" | jq -r '.[] | .sha, .commit.message' | head -n $2 | paste -sd ' \n'
 }
 
-# Use bat to view man pages
-man (){
-    /usr/bin/man "$1" | bat --style=plain
-}
-
 # Output currently playing mpc song
 mpc-current () {
     printf '\e[?25l'
