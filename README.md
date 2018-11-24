@@ -10,7 +10,7 @@ On first run, `~/.zsh_prompt.conf` will be created.  This file contains all of t
 
 Example setup:
 
-![screenshot1](https://ibin.co/4N7p3iolsiob.png)
+![screenshot1](https://ibin.co/4Nfm4bxoHjil.png)
 
 `~/.zsh_aliases` file:
 

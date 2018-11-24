@@ -9,12 +9,12 @@ setopt no_nomatch
 ###
 ### FUNCTIONS TO OUTPUT COLOR SAMPLES ###
 prompt_fg_samples () {
-    for i in {000..265}; do
+    for i in {000..256}; do
         print -P -- "$(tput sgr0)$i: %{$(BG_COLOR $COLOR_BG)%}%${i}F %n %S %25<$(echo "/${${PWD#/*}%%/*}/" | sed 's%\/home\/%\~\/%')...<%~ %s%k%f"
     done
 }
 prompt_bg_samples () {
-    for i in {000..265}; do
+    for i in {000..256}; do
         print -P -- "$(tput sgr0)$i: %{$(echo -e "\033[48;5;${i}m")%}%$(FG_COLOR)F %n %S %25<$(echo "/${${PWD#/*}%%/*}/" | sed 's%\/home\/%\~\/%')...<%~ %s%k%f"
     done
 }
