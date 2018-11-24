@@ -55,23 +55,6 @@ calc () {
     awk "BEGIN {print $@}"
 }
 
-# get the first google result and info about it using w3.org's html2txt and document-parser-api.lateral.io; requires perl and jq
-google () {
-    SEARCH_QUERY="$(perl -MURI::Escape -e 'print uri_escape($ARGV[0]);' "$@")"
-    RESULT_URL="$(curl -sL "https://www.w3.org/services/html2txt?url=https%3A%2F%2Fwww.google.com%2Fsearch%3Fq%3D$SEARCH_QUERY&noinlinerefs=on&nonums=on&endrefs=on" | grep -m1 'url?q=' | \
-    sed 's%  26\. https:\/\/www\.google\.com\/url?q=%%g;s%&sa=.*%%g')"
-    echo -e "Google Result for '$@':\n$RESULT_URL"
-    URL_ENCODED="$(perl -MURI::Escape -e 'print uri_escape($ARGV[0]);' "$RESULT_URL")"
-    INFO_JSON="$(curl -sL "https://document-parser-api.lateral.io/?url=$URL_ENCODED&subscription-key=1ce62f323290e0eea861d171bb32a001")"
-    echo -e "Title: $(echo "$INFO_JSON" | jq -r '.title')"
-    echo -e "Description:\n$(echo "$INFO_JSON" | jq -r '.description')"
-}
-
-# Use cht.sh to get simple help outputs for all sorts of Linux things
-help () {
-    curl -s "https://cht.sh/$@"
-}
-
 # Use owlbot.info to get definitions; requires jq
 define () {
     curl -sL "https://owlbot.info/api/v2/dictionary/"$1"?format=json" | jq -r '.'
@@ -110,6 +93,23 @@ gitinfo () {
 # View latest github release; requires jq
 gitrelease () {
     curl -sSL "https://api.github.com/repos/$1/$2/releases" | jq -r ".[$3].assets[]"
+}
+
+# get the first google result and info about it using w3.org's html2txt and document-parser-api.lateral.io; requires perl and jq
+google () {
+    SEARCH_QUERY="$(perl -MURI::Escape -e 'print uri_escape($ARGV[0]);' "$@")"
+    RESULT_URL="$(curl -sL "https://www.w3.org/services/html2txt?url=https%3A%2F%2Fwww.google.com%2Fsearch%3Fq%3D$SEARCH_QUERY&noinlinerefs=on&nonums=on&endrefs=on" | grep -m1 'url?q=' | \
+    sed 's%  26\. https:\/\/www\.google\.com\/url?q=%%g;s%&sa=.*%%g')"
+    echo -e "Google Result for '$@':\n$RESULT_URL"
+    URL_ENCODED="$(perl -MURI::Escape -e 'print uri_escape($ARGV[0]);' "$RESULT_URL")"
+    INFO_JSON="$(curl -sL "https://document-parser-api.lateral.io/?url=$URL_ENCODED&subscription-key=1ce62f323290e0eea861d171bb32a001")"
+    echo -e "Title: $(echo "$INFO_JSON" | jq -r '.title')"
+    echo -e "Description:\n$(echo "$INFO_JSON" | jq -r '.description')"
+}
+
+# Use cht.sh to get simple help outputs for all sorts of Linux things
+help () {
+    curl -s "https://cht.sh/$@"
 }
 
 # Output currently playing mpc song
