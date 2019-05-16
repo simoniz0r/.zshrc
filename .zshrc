@@ -80,6 +80,11 @@ EXIT_STATUS () {
 MAIN_PROMPT () {
     echo -e "$PS1_CONTENTS"
 }
+### LOAD TAB COMPLETIONS ###
+# Use modern completion system
+autoload -Uz compinit
+compinit
+###
 ### SOURCE CONFIG FILE IF IT EXISTS OTHERWISE SETUP DEFAULTS ###
 if [[ -f "$HOME/.zsh_prompt.conf" ]]; then
     source "$HOME"/.zsh_prompt.conf
@@ -155,11 +160,6 @@ bindkey -e
 HISTSIZE=50000
 SAVEHIST=50000
 HISTFILE=~/.zsh_history
-###
-### LOAD TAB COMPLETIONS ###
-# Use modern completion system
-autoload -Uz compinit
-compinit
 ###
 ### SET TAB COMPLETION OPTIONS ###
 zstyle ':completion:*' auto-description 'specify: %d'
