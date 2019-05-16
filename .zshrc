@@ -48,12 +48,12 @@ parse_git_branch () {
     (git symbolic-ref -q HEAD || git name-rev --name-only --no-undefined --always HEAD) 2> /dev/null
 }
 parse_git_state () {
-    if [ -z "$(git status --porcelain)" ]; then
+    if [[ -z "$(git status --porcelain)" ]]; then
         GIT_STATE=""
     else
         GIT_STATE="$(git status --porcelain | wc -l) "
     fi
-    if [ ! -z "$GIT_STATE" ]; then
+    if [[ ! -z "$GIT_STATE" ]]; then
         echo "$GIT_STATE"
     fi
 }
@@ -81,7 +81,7 @@ MAIN_PROMPT () {
     echo -e "$PS1_CONTENTS"
 }
 ### SOURCE CONFIG FILE IF IT EXISTS OTHERWISE SETUP DEFAULTS ###
-if [ -f "$HOME/.zsh_prompt.conf" ]; then
+if [[ -f "$HOME/.zsh_prompt.conf" ]]; then
     source "$HOME"/.zsh_prompt.conf
 else
 cat > "$HOME"/.zsh_prompt.conf << 'EOL'
@@ -123,17 +123,23 @@ export MPD_HOST=127.0.0.1
 ###
 ### OTHER OPTIONS ###
 # launches tmux in each new terminal if tmux is not already running in that terminal
-# set to FALSE if tmux is not installed
+# requires 'tmux' be installed
 ENABLE_TMUX="FALSE"
+# launch new zsh sessions in dtach which allows programs to keep running if terminal is closed/crashes
+# requires 'dtach' be installed
+ENABLE_DTACH="FALSE"
+###
+### ADD YOUR OPTIONS HERE ###
+
 ###
 EOL
 source "$HOME"/.zsh_prompt.conf
 fi
 ### SET THE PROMPT ###
-if [ -z "$PS1" ]; then
+if [[ -z "$PS1" ]]; then
     PS1='%{$(BG_COLOR $COLOR_BG)%}%$(FG_COLOR)F %n %S %25<$(echo "/${${PWD#/*}%%/*}/" | sed 's%\/home\/%\~\/%')...<%~ %s%k%f '
 fi
-if [ "$ENABLE_RPS1" = "TRUE" ]; then
+if [[ "$ENABLE_RPS1" = "TRUE" ]]; then
     RPS1='$(EXIT_STATUS)$(GIT_STATUS)'
 else
     unset RPS1
@@ -176,37 +182,39 @@ zstyle ':completion:*:kill:*' command 'ps -u $USER -o pid,%cpu,tty,cputime,cmd'
 ###
 ### ZSH ALIASES FILE ###
 # Adds check for zsh aliases file for separate loading of aliases like bash
-if [ -f ~/.zsh_aliases ]; then
+if [[ -f ~/.zsh_aliases ]]; then
     . ~/.zsh_aliases
 fi
 ###
-### PERSONALIZED TWEAKS FOR MY MACHINE ###
-if [ "$USER" = "simonizor" ] && [ "$HOST" = "tumbleweed" ]; then
-    compdef spm=spm2
-    if [ -f ~/nohup.out ]; then
-        rm ~/nohup.out
-    fi
-    if [ -f /home/simonizor/.todo/.todo.comp ]; then
-        source /home/simonizor/.todo/.todo.comp
-        compdef _todo todo
-    fi
-
-    if [ -f /home/simonizor/.config/appimagedl/appimagedl-completion.sh ]; then
-        source /home/simonizor/.config/appimagedl/appimagedl-completion.sh
-        compdef _appimagedlzsh appimagedl
-    fi
-fi
-###
-### START TMUX IF ENABLED ABOVE ###
-if [ "$ENABLE_TMUX" = "TRUE" ]; then
-    # start tmux if not already running
+### START TMUX IF ENABLED IN PROMPT CONFIG ###
+if [[ "$ENABLE_TMUX" = "TRUE" && "$ENABLE_DTACH" != "TRUE" ]]; then
+    # do not run in TTY
     if [[ ! "$TTY" =~ "/dev/tty" ]]; then
+        # do not start in these programs
         case $(ps -p $(ps -p $$ -o ppid=) o args=) in
-            tmux*|*vscode*|*xterm*|*kdevelop*|*ascii*)
+            *tmux*|*code*|*xterm*|*kdevelop*|*ascii*|*vscodium*|*screen*|*SCREEN*|*dtach*)
                 sleep 0
                 ;;
             *)
+                # start tmux if not already running
                 tmux
+                ;;
+        esac
+    fi
+fi
+###
+### START DTACH IF ENABLED IN PROMPT CONFIG ###
+if [[ "$ENABLE_DTACH" = "TRUE" && "$ENABLE_TMUX" != "TRUE" ]]; then
+    # do not run in TTY
+    if [[ ! "$TTY" =~ "/dev/tty" ]]; then
+        # do not start in these programs
+        case $(ps -p $(ps -p $$ -o ppid=) o args=) in
+            *tmux*|*code*|*xterm*|*kdevelop*|*ascii*|*vscodium*|*screen*|*SCREEN*|*dtach*)
+                sleep 0
+                ;;
+            *)
+                # start new dtach session or connect to existing one
+                dtach -A /tmp/dtach1234 -z zsh
                 ;;
         esac
     fi
